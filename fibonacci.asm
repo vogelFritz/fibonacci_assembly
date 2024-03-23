@@ -1,3 +1,8 @@
+extern print_unsigned_int
+section .data
+    format: db "%d", 10 
+section .bss
+    printf: resb 100 ; Space for printf function
 section .text
 global _start
 
@@ -28,19 +33,30 @@ main_loop:
     mov esi, [rbp - 4]
     add esi, dword [rbp - 8]
     mov [rbp - 12], dword esi
+
+    mov rax, [rbp - 12]
+    call print_unsigned_int
+
     mov esi, [rbp - 8]
     mov [rbp - 4], esi
     mov esi, [rbp - 12]
     mov [rbp - 8], esi
-    cmp [rbp - 12], dword 255
+    cmp [rbp - 12], dword 150
     jl main_loop
     ret
 
 print_fib_num:
+    add dword [rbp - 12], 48
+    
     mov rax, 1 ; syswrite
     mov rdi, 1 ; stdout
     lea rsi, [rbp - 12]
     mov rdx, 4
+    syscall
+
+    mov rsi, format ; Load the format string address
+    mov rdi, [rbp - 12] ; Move the value to print into rdi
+    call printf ; Call the printf function
 
 end_program:
     mov rax, 60
